@@ -32,15 +32,19 @@ class FeedForward(nn.Module):
         super().__init__()
 
         # Linear layer 1: projects [B, T, E] → [B, T, E]
-        self.layer1 = nn.Linear(embed_size, embed_size)
+        self.layer1 = nn.Linear(embed_size, embed_size * 4)
         # Linear layer 2: projects [B, T, E] → [B, T, E]
-        self.layer2 = nn.Linear(embed_size, embed_size)
+        self.layer2 = nn.Linear(embed_size * 4, embed_size)
+        
+        self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
         # x: [B, T, E]
         x = self.layer1(x)       # [B, T, E]
         x = F.gelu(x)            # apply GELU activation (non-linear)
+        x = self.dropout(x)
         x = self.layer2(x)       # [B, T, E]
+        x = self.dropout(x)
         
         return x
     
@@ -131,54 +135,84 @@ class TransformerBlock(nn.Module):
 
         self.feed_forward = FeedForward(embed_size)         # MLP Part
         self.layer_norm1 = nn.LayerNorm(embed_size)         # Normalize features
+        self.layer_norm2 = nn.LayerNorm(embed_size)         # Normalize features
+
+        self.dropout = nn.Dropout(0.1)
 
         self.use_multihead = use_multihead
 
     def forward(self, x: torch.Tensor):
 
-        if self.use_multihead:
-            # Multi-head attention with residual connection
-            attn_out = self.attention_layer(x)      # [B, T, E]
-            x = self.layer_norm1(attn_out + x)      # [B, T, E]
+        attn_out = self.attention_layer(x)
+        x = self.dropout(x)
+        
+        x = x + attn_out
+        x = self.layer_norm1(x)
 
-            # Feed-forward with residual
-            ff_out = self.feed_forward(x)           # [B, T, E]
-            return F.gelu(ff_out + x)               # [B, T, E]
-        else:
-            context = self.attention_layer(x)       # [B, T, E]
-            context = self.layer_norm1(context)     # [B, T, E]
+        ff_out = self.feed_forward(x)
+        x = self.dropout(x)
+        x = x + ff_out
+        x = self.layer_norm2(x)
 
-            context = self.feed_forward(context)    # [B, T, E]
-            context = F.gelu(context)               # [B, T, E]
-            output = context + x                    # [B, T, E]
-            return output
+        return x
+
+
+# class SinusoidalPositionEncoding(nn.Module):
+#     def __init__(self, embed_size:int, max_seq_length: int):
+#         super().__init__()
+
+#         # position: [max_seq_length, 1]
+#         position = torch.arange(max_seq_length).unsqueeze(1)
+        
+#         # div_term: frequency scaling for sine/cosine
+#         div_term = torch.exp(
+#             torch.arange(0, embed_size, 2) * (-math.log(10000.0) / embed_size)
+#         )
+
+#         # Create positional encoding matrix: [max_seq_length, embed_size]
+#         pe = torch.zeros(max_seq_length, embed_size)
+#         pe[:, 0::2] = torch.sin(position * div_term)    # Even indices
+#         pe[:, 1::2] = torch.cos(position * div_term)    # Odd indices
+        
+#         # Save as buffer (not a parameter but stored with model)
+#         self.register_buffer("positional_embedding", pe)
+
+#     def forward(self, x: torch.Tensor):
+#         # Add position info to embeddings
+#         # x: [B, T, E], positional_embedding: [max_seq_length, E]
+#         # :x.size(1) meaning that we only take the first T positions and broadcast it to x
+#         return x + self.positional_embedding[: x.size(1), :]
 
 class SinusoidalPositionEncoding(nn.Module):
-    def __init__(self, embed_size:int, max_seq_length: int):
+    def __init__(self, embed_size: int, max_seq_length: int = 512):
         super().__init__()
+        self.embed_size = embed_size
+        # Build an initial cache. Mark as non-persistent since we can regenerate.
+        pe = self._build_pe(max_seq_length, embed_size, device=None, dtype=None)  # [1, L, E]
+        self.register_buffer("positional_embedding", pe, persistent=False)
 
-        # position: [max_seq_length, 1]
-        position = torch.arange(max_seq_length).unsqueeze(1)
-        
-        # div_term: frequency scaling for sine/cosine
-        div_term = torch.exp(
-            torch.arange(0, embed_size, 2) * (-math.log(10000.0) / embed_size)
-        )
-
-        # Create positional encoding matrix: [max_seq_length, embed_size]
-        pe = torch.zeros(max_seq_length, embed_size)
-        pe[:, 0::2] = torch.sin(position * div_term)    # Even indices
-        pe[:, 1::2] = torch.cos(position * div_term)    # Odd indices
-        
-        # Save as buffer (not a parameter but stored with model)
-        self.register_buffer("positional_embedding", pe)
+    @staticmethod
+    def _build_pe(max_len: int, d_model: int, device, dtype):
+        # position: [L, 1]
+        position = torch.arange(max_len, device=device, dtype=dtype).unsqueeze(1)
+        # div_term: [ceil(d_model/2)]
+        div_term = torch.exp(torch.arange(0, d_model, 2, device=device, dtype=dtype) * (-math.log(10000.0) / d_model))
+        pe = torch.zeros(max_len, d_model, device=device, dtype=dtype)
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        return pe.unsqueeze(0)  # [1, L, E]
 
     def forward(self, x: torch.Tensor):
-        # Add position info to embeddings
-        # x: [B, T, E], positional_embedding: [max_seq_length, E]
-        # :x.size(1) meaning that we only take the first T positions and broadcast it to x
-        return x + self.positional_embedding[: x.size(1), :]
-    
+        B, T, E = x.shape
+        # Grow PE if needed
+        if T > self.positional_embedding.size(1):
+            # Grow to next power of two for amortized O(1) resizing
+            new_len = 2 ** math.ceil(math.log2(T))
+            pe = self._build_pe(new_len, self.embed_size, device=x.device, dtype=x.dtype)
+            self.register_buffer("positional_embedding", pe, persistent=False)
+        # Broadcast add: [B, T, E] + [1, T, E]
+        return x + self.positional_embedding[:, :T, :]
+
 class Transformer(nn.Module):
     def __init__(self, embed_size: int, num_layers: int, max_seq_length: int):
         super().__init__()

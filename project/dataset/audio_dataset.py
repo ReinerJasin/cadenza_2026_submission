@@ -48,8 +48,9 @@ def collate_fn(batch):
     #     print(f'w-{i}: {w.shape}')
     #     print(f'w-{i}: {w.shape[1]}')
 
+
     # Find max length of waveform
-    max_len_audio = max(w.shape[1] for w in waveforms)
+    max_len_audio = max(w.shape[0] for w in waveforms)
 
     # Find max length of input_ids
     tokenized_prompts = [m["tokenized_prompt"] for m in metadata]
@@ -63,7 +64,7 @@ def collate_fn(batch):
     # Pad waveforms to max_len_audio
     padded_waveforms = []
     for w in waveforms:
-        pad_len = max_len_audio - w.shape[1]
+        pad_len = max_len_audio - w.shape[0]
         if pad_len > 0:
             w = torch.nn.functional.pad(w, (0, pad_len))
         padded_waveforms.append(w)
@@ -151,7 +152,8 @@ class AudioWithMetadataDataset(Dataset):
 
         # Load metadata JSON
         metadata_file = self.root_dir / "metadata" / f"{split}_metadata.json"
-        print(f'WOYYY CARI DI: {metadata_file}')
+        print(f'Loading dataset...')
+        print(f'Dataset source: {metadata_file}\n')
         with open(metadata_file, "r") as f:
             self.metadata = json.load(f)
 
@@ -170,15 +172,18 @@ class AudioWithMetadataDataset(Dataset):
         # Load audio
         audio_path = self.audio_dir / f"{signal_id}.flac"
         waveform, sample_rate = torchaudio.load(audio_path)
-        
+
+
         # Convert to mono audio
         if waveform.shape[0] == 2:
             waveform = torch.mean(waveform, dim=0, keepdim=True)
-
+        
         # Apply optional transform
         if self.transform:
             waveform = self.transform(waveform)
 
+        waveform = waveform.squeeze(0)
+        
         # Tokenize prompt and response
         if "prompt" in entry:
             entry["tokenized_prompt"] = self.tokenizer.encode(entry["prompt"]).ids

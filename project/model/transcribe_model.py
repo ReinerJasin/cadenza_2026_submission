@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from .rvq import ResidualVectorQuantizer, VectorQuantizer
-from .self_attention import Transformer
-from .downsampling import DownsamplingNetwork
+from .module.rvq import ResidualVectorQuantizer, VectorQuantizer
+from .module.self_attention import Transformer
+from .module.downsampling import DownsamplingNetwork
 
 class TranscribeModel(nn.Module):
     def __init__(
@@ -46,16 +46,31 @@ class TranscribeModel(nn.Module):
         self.output_layer = nn.Linear(embedding_dim, vocab_size)
         
     def forward(self, x: torch.Tensor):
+        # print('=========TRANSCRIBE MODEL FORWARD=========')
         loss = torch.tensor(0.0)
+        # print(f'Original shape: {x.shape}')
+        
         x = x.unsqueeze(1)
+        
+        # print(f'\nAfter unsqueze: {x.shape}')
         
         x = self.downsampling_network(x)
         
+        # print(f'\nAfter downsampling: {x.shape}')
+        
         x = self.pre_rvq_transformer(x)
         
+        # print(f'\nPre rvq transformer: {x.shape}')
+        
         x, loss = self.rvq(x)
+        
+        # print(f'\nrvq: {x.shape}')
+        
         x = self.output_layer(x)
-        x = torch.log_softmax(x, dim=1)
+        # print(f'x: {x}')
+        # print(f'x shape: {x.shape}')
+        x = torch.log_softmax(x, dim=-1)
+        # print('==========================================')
         
         return x, loss
     
@@ -70,18 +85,18 @@ class TranscribeModel(nn.Module):
         model.load_state_dict(torch.load(path)["model"])
         return model
     
-if __name__ == "__main__":
-    model = TranscribeModel(
-        num_codebooks=3,
-        codebook_size=64,
-        embedding_dim=64,
-        vocab_size=100,
-        strides=[6,8,4,2],
-        initial_mean_pooling_kernel_size=4,
-        max_seq_length=2000,
-        num_transformer_layers=2,
-    )
+# if __name__ == "__main__":
+#     model = TranscribeModel(
+#         num_codebooks=3,
+#         codebook_size=64,
+#         embedding_dim=64,
+#         vocab_size=100,
+#         strides=[6,8,4,2],
+#         initial_mean_pooling_kernel_size=4,
+#         max_seq_length=2000,
+#         num_transformer_layers=2,
+#     )
     
-    x = torch.randn(4, 237680)
-    out, loss = model(x)
-    print(out.shape)
+#     x = torch.randn(4, 237680)
+#     out, loss = model(x)
+#     print(out.shape)

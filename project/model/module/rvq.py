@@ -81,14 +81,15 @@ class ResidualVectorQuantizer(nn.Module):
         )
         
     def forward(self, x):
-        out = 0
-        total_loss = 0
+        residual = x.clone()
+        out = torch.zeros_like(x)
+        total_loss = 0.0
         
         for codebook in self.codebooks:
-            this_output, this_loss = codebook(x)        # this_output: [B, T, E]
-            x = x - this_output                         # residual for next level: [B, T, E]
-            out = out + this_output                     # accumulate reconstruction: [B, T, E]
-            total_loss += this_loss                     # sum scalar losses
+            quantized, q_loss = codebook(residual)        # this_output: [B, T, E]
+            residual = residual - quantized                         # residual for next level: [B, T, E]
+            out = out + quantized                   # accumulate reconstruction: [B, T, E]
+            total_loss += q_loss                    # sum scalar losses
             
         return out, total_loss
     

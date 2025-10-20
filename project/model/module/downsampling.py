@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     output_embedding_dim = 32
     hidden_dim = 16
-    strides = [2, 4, 8]
+    strides = [3, 4, 5]
     initial_mean_pooling_kernel_size = 2
 
     downsampling_network = DownsamplingNetwork(
