@@ -24,17 +24,20 @@ from hparams import Hparams
 # PROJECT_ROOT = Path(__file__).parent.resolve()
 
 # HYPERPARAMETERS
-vq_initial_loss_weight = 2
-vq_warmup_steps = 5000
-vq_final_loss_weight = 0.5
-num_epochs = 1000
-starting_steps = 0
-num_examples = 100
-model_id = 'test1'
-num_batch_repeats = 1
+data_loader_args = Hparams.data_loader_args
+
+vq_initial_loss_weight = Hparams.vq_args['vq_initial_loss_weight']
+vq_warmup_steps = Hparams.vq_args['vq_warmup_steps']
+vq_final_loss_weight = Hparams.vq_args['vq_final_loss_weight']
+
+num_epochs = Hparams.train_args['num_epochs']
+starting_steps =  Hparams.train_args['starting_steps']
+num_examples =  Hparams.train_args['num_examples']
+model_id =  Hparams.train_args['model_id']
+num_batch_repeats =  Hparams.train_args['num_batch_repeats']
 
 # BATCH_SIZE = 64
-LEARNING_RATE = 5e-4
+learning_rate = Hparams.optimizer_args['learning_rate']
 
 # CTC Loss Function
 def run_loss_function(log_probs, target, blank_token):
@@ -90,8 +93,8 @@ def main():
     print("Model is initiated and ready to train!")
     print(f'Number of trainable parameters: {num_trainable_params}\n')
     
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    train_loader = get_data_loader(split='train', args=Hparams.args)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    train_loader = get_data_loader(split='train', args=data_loader_args)
     
     # ctc_losses = []
     # vq_losses = []
