@@ -17,5 +17,9 @@ class Hparams:
         # 'annotation_path': './data_mini/annotations.json',      # Previously Missing and causing an error
 
         # 'frame_size': 0.02,
-        'batch_size': 8,  
+        'batch_size': 1,
+    }
+    
+    train_args = {
+        'vq_initial_loss_weight': 2,
     }

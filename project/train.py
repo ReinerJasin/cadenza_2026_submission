@@ -21,7 +21,6 @@ from hparams import Hparams
 
 # from pathlib import Path
 
-
 # PROJECT_ROOT = Path(__file__).parent.resolve()
 
 # HYPERPARAMETERS
@@ -34,7 +33,7 @@ num_examples = 100
 model_id = 'test1'
 num_batch_repeats = 1
 
-BATCH_SIZE = 64
+# BATCH_SIZE = 64
 LEARNING_RATE = 5e-4
 
 # CTC Loss Function
@@ -94,170 +93,56 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     train_loader = get_data_loader(split='train', args=Hparams.args)
     
-    ctc_losses = []
-    vq_losses = []
+    # ctc_losses = []
+    # vq_losses = []
     num_batches = len(train_loader)
     total_steps = num_epochs * num_batches
     steps = starting_steps
     
-    # for i in range(num_epochs):
-        
-        
-    #     for idx, batch in enumerate(train_loader):
-    #         for repeat_batch in range (num_batch_repeats):
-    #             audio = batch["waveform"]                           # waveform tensor
-    #             target = batch["padded_response"]                   # target token IDs
-    #             text = [m["response"] for m in batch["metadata"]]   # original text (optional)
-                
-    #             # print('=========================================================')
-    #             # print(batch)
-    #             # print(f'audio shape: {audio.shape} | target shape: {target.shape} | text shape: {text}\n')
-                
-                
-    #             # print(f'Target shape: {target.shape[1]}, audio shape: {audio.shape[1]}')
-    #             # print('=========================================================')
-    #             # print(f'target ku: {target}')
-                
-    #             if target.shape[1] > audio.shape[1]:
-    #                 print(f'Padding audio, target is longer than audio. Audio shape: {audio.shape[1]}, target shape: {target.shape[1]}')
-                    
-    #                 audio = torch.nn.functional.pad(
-    #                     audio, (0, 0, 0, target.shape[1] - audio.shape[1])
-    #                 )
-                    
-    #                 print(f'After padding: {audio.shape}')
-                    
-    #             # print(f"still working up to this point (idx: {idx})")
-    #             # print(f"still working up to this point (num batc repeat: {num_batch_repeats})")
-                
-    #             audio = audio.to(device)
-    #             target = target.to(device)
-                
-    #             optimizer.zero_grad()
-    #             output, vq_loss = model(audio)
-    #             ctc_loss = run_loss_function(output, target, blank_token)
-                
-    #             # Calculate vq_loss_weight using linear warmup schedule
-    #             vq_loss_weight = max(
-    #                 vq_final_loss_weight,
-    #                 vq_initial_loss_weight - (vq_initial_loss_weight - vq_final_loss_weight) * (steps / vq_warmup_steps)
-    #             )
-                
-    #             if vq_loss is None:
-    #                 loss = ctc_loss
-    #             else:
-    #                 loss = ctc_loss + vq_loss_weight * vq_loss
-                    
-    #             if torch.isinf(loss):
-    #                 print(f'Loss is ing, skipping step {audio.shape} {target.shape}')
-    #                 continue
-    #             loss.backward()
-                
-    #             # Increase gradient clipping threshold
-    #             torch.nn.utils.clip_grad_norm_(
-    #                 model.parameters(), max_norm=10.0
-    #             )   # Changed form 1.0
-                
-    #             optimizer.step()
-                
-    #             ctc_losses.append(ctc_loss.item())
-    #             vq_losses.append(vq_loss.item())
-    #             steps += 1
-                
-    #             # Log to tensorboard every step
-                
-    #             if steps % 20 == 0:
-    #                 avg_ctc_loss = sum(ctc_losses) / len(ctc_losses)
-    #                 avg_vq_loss = sum(vq_losses) / len(vq_losses)
-                    
-    #                 avg_loss = avg_ctc_loss + (vq_loss_weight * avg_vq_loss)
-                    
-    #                 print(
-    #                     f"[Epoch {i+1}/{num_epochs}] Step {steps}/{num_batches*num_epochs} | "
-    #                     f"Batch {idx+1}/{num_batches} | "
-    #                     f"CTC Loss: {avg_ctc_loss:.4f} | VQ Loss: {avg_vq_loss:.4f} | Total Loss: {avg_loss:.4f}"
-    #                 )
-
-    #                 writer.add_scalar("Loss/CTC", avg_ctc_loss, steps)
-    #                 writer.add_scalar("Loss/VQ", avg_vq_loss, steps)
-    #                 writer.add_scalar("Loss/Total", avg_loss, steps)
-
-    #                 ctc_losses.clear()
-    #                 vq_losses.clear()
-                
-    #             # Occasionally print prediction examples
-    #             if steps % 100 == 0:
-    #                 model.eval()
-    #                 with torch.no_grad():
-    #                     # Get most probable token IDs from logits
-    #                     pred_ids = torch.argmax(output, dim=-1)
-
-    #                     # Decode predictions and ground truth
-    #                     pred_texts = [tokenizer.decode(ids.tolist()) for ids in pred_ids]
-    #                     true_texts = [t for t in text]
-
-    #                     print("\n" + "="*70)
-    #                     print(f"Prediction Examples at step {steps}")
-    #                     for ex_idx in range(min(3, len(pred_texts))):  # Show up to 3 examples
-    #                         print(f"\nExample {ex_idx + 1}:")
-    #                         print(f"Model Output : {pred_texts[ex_idx]}")
-    #                         print(f"Ground Truth : {true_texts[ex_idx]}")
-    #                     print("="*70 + "\n")
-
-    #                     # Log predictions to TensorBoard
-    #                     for ex_idx in range(min(3, len(pred_texts))):
-    #                         writer.add_text(
-    #                             f"Predictions/Example_{ex_idx}",
-    #                             f"**Model Output:** {pred_texts[ex_idx]}\n**Ground Truth:** {true_texts[ex_idx]}",
-    #                             steps
-    #                         )
-    #                 model.train()
-                    
-                    
-    #             if steps % 250 == 0:
-    #                 os.makedirs(f"models/{model_id}", exist_ok=True)
-    #                 model.save(f"models/{model_id}/model_latest.pth")
-    #                 print(f"Saved checkpoint at step {steps}")
-
-    # print("Training complete!")
-    # os.makedirs(f"models/{model_id}", exist_ok=True)
-    # model.save(f"models/{model_id}/model_final.pth")
-    # print(f"Final model saved to models/{model_id}/model_final.pth")
-    # writer.close()
-    
-    
-    
     # =============================
     # Training Loop
+    # made by chatgpt for training step for better log output
     # =============================
     start_time = time.time()
 
+    # Loop by the number of epoch
     for epoch in range(num_epochs):
+        
+        # List to sroe loss of ctc and vector quantizer for every epoch
         epoch_ctc_losses = []
         epoch_vq_losses = []
 
         # tqdm progress bar per epoch
         progress_bar = tqdm(train_loader, total=num_batches, desc=f"Epoch {epoch+1}/{num_epochs}")
 
+        # Loop by the number of batch in train loader
         for idx, batch in enumerate(progress_bar):
+            # Repeat per batch
             for _ in range(num_batch_repeats):
                 audio = batch["waveform"]
                 target = batch["padded_response"]
                 text = [m["response"] for m in batch["metadata"]]
 
+                # Pad audio if the sequence of the padded_response is longer
                 if target.shape[1] > audio.shape[1]:
                     audio = torch.nn.functional.pad(
                         audio, (0, 0, 0, target.shape[1] - audio.shape[1])
                     )
 
+                # Use device (cuda or mps)
                 audio = audio.to(device)
                 target = target.to(device)
 
+                # Reset old gradients
                 optimizer.zero_grad()
+                
+                # Forward Pass
                 output, vq_loss = model(audio)
+                
+                # Calculate CTC loss
                 ctc_loss = run_loss_function(output, target, blank_token)
 
-                # Linear warmup schedule for VQ loss weight
+                # Linear warmup schedule for VQ loss weight (total loss = CTC + VQ)
                 vq_loss_weight = max(
                     vq_final_loss_weight,
                     vq_initial_loss_weight - (vq_initial_loss_weight - vq_final_loss_weight) * (steps / vq_warmup_steps)
@@ -268,12 +153,18 @@ def main():
                 else:
                     loss = ctc_loss + vq_loss_weight * vq_loss
 
+                # Handle invalid loss
                 if torch.isinf(loss):
-                    print(f"⚠️ Loss is inf, skipping step | audio: {audio.shape} | target: {target.shape}")
+                    print(f"ALERT!!! Loss is inf, skipping step | audio: {audio.shape} | target: {target.shape}")
                     continue
 
+                # Backpropagation
                 loss.backward()
+                
+                # Gradient clipping for stability
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=10.0)
+                
+                # Update parameter weight
                 optimizer.step()
 
                 # Update tracking
@@ -314,7 +205,7 @@ def main():
                         true_texts = [t for t in text]
 
                         print("\n" + "="*70)
-                        print(f"📊 Prediction Examples (Step {steps})")
+                        print(f"Prediction Examples (Step {steps})")
                         for ex_idx in range(min(3, len(pred_texts))):
                             print(f"\nExample {ex_idx + 1}:")
                             print(f"Model Output : {pred_texts[ex_idx]}")
@@ -327,20 +218,21 @@ def main():
                 if steps % 250 == 0:
                     os.makedirs(f"models/{model_id}", exist_ok=True)
                     model.save(f"models/{model_id}/model_latest.pth")
-                    print(f"💾 Checkpoint saved at step {steps}")
+                    print(f"Checkpoint saved at step {steps}")
 
-        # ✅ Log epoch-level losses
+        # Log epoch-level losses
         avg_epoch_ctc = sum(epoch_ctc_losses) / len(epoch_ctc_losses)
         avg_epoch_total = avg_epoch_ctc + vq_loss_weight * (sum(epoch_vq_losses) / len(epoch_vq_losses))
         writer.add_scalar("EpochLoss/CTC", avg_epoch_ctc, epoch + 1)
         writer.add_scalar("EpochLoss/Total", avg_epoch_total, epoch + 1)
 
-        print(f"✅ Epoch {epoch+1}/{num_epochs} complete | Avg CTC Loss: {avg_epoch_ctc:.4f} | Avg Total Loss: {avg_epoch_total:.4f}")
+        print(f"Epoch {epoch+1}/{num_epochs} complete | Avg CTC Loss: {avg_epoch_ctc:.4f} | Avg Total Loss: {avg_epoch_total:.4f}")
 
-    print("🎉 Training complete!")
+    # Save model after training
+    print("Training complete!")
     os.makedirs(f"models/{model_id}", exist_ok=True)
     model.save(f"models/{model_id}/model_final.pth")
-    print(f"✅ Final model saved to models/{model_id}/model_final.pth")
+    print(f"Final model saved to models/{model_id}/model_final.pth")
     writer.close()
     
 if __name__ == "__main__":
