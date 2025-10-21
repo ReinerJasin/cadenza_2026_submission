@@ -74,10 +74,15 @@ def main():
     )
     print(f"Using device: {device}\n")
     
-    if os.path.exists(f"models/{model_id}/model_latest.pth"):
-        print(f"Loading model form models/{model_id}/model_latest.pth")
-        model = TranscribeModel.load(f"models/{model_id}/model_latest.pth").to(device)
-    else:
+    checkpoint_lts_path = f"models/{model_id}/checkpoint_latest.pth"
+    checkpoint_final_path = f"models/{model_id}/checkpoint_final.pth"
+    
+    start_epoch = 0
+    steps = starting_steps
+    
+    if os.path.exists(checkpoint_lts_path):
+        print(f"Loading model from {checkpoint_lts_path}")
+        checkpoint = torch.load(checkpoint_lts_path, map_location=device)
         model = TranscribeModel(
             num_codebooks=8,
             codebook_size=256,
@@ -88,19 +93,40 @@ def main():
             initial_mean_pooling_kernel_size=4,
             max_seq_length=400
         ).to(device)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+        optimizer.load_state_dict(checkpoint["optimizer_state"])
+        steps = checkpoint["steps"]
+        start_epoch = checkpoint["epoch"] + 1
+    else:
+        print("Starting from scratch...")
+        model = TranscribeModel(
+            num_codebooks=8,
+            codebook_size=256,
+            embedding_dim=256,
+            num_transformer_layers=6,
+            vocab_size=len(tokenizer.get_vocab()),
+            strides=[6, 6, 6],
+            initial_mean_pooling_kernel_size=4,
+            max_seq_length=400
+        ).to(device)
+        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
         
     num_trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print("Model is initiated and ready to train!")
     print(f'Number of trainable parameters: {num_trainable_params}\n')
     
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    # optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     train_loader = get_data_loader(split='train', args=data_loader_args)
     
     # ctc_losses = []
     # vq_losses = []
     num_batches = len(train_loader)
-    total_steps = num_epochs * num_batches
-    steps = starting_steps
+    
+    target_epoch = start_epoch + num_epochs
+    
+    total_steps = (target_epoch - start_epoch) * num_batches
+    # steps = starting_steps
     
     # =============================
     # Training Loop
@@ -109,14 +135,14 @@ def main():
     start_time = time.time()
 
     # Loop by the number of epoch
-    for epoch in range(num_epochs):
+    for epoch in range(start_epoch, target_epoch):
         
         # List to sroe loss of ctc and vector quantizer for every epoch
         epoch_ctc_losses = []
         epoch_vq_losses = []
 
         # tqdm progress bar per epoch
-        progress_bar = tqdm(train_loader, total=num_batches, desc=f"Epoch {epoch+1}/{num_epochs}")
+        progress_bar = tqdm(train_loader, total=num_batches, desc=f"Epoch {epoch+1}/{target_epoch}")
 
         # Loop by the number of batch in train loader
         for idx, batch in enumerate(progress_bar):
@@ -177,7 +203,8 @@ def main():
 
                 # Calculate ETA
                 elapsed = time.time() - start_time
-                steps_done = steps - starting_steps
+                steps_done = steps - start_epoch * num_batches
+
                 eta = elapsed / steps_done * (total_steps - steps_done)
                 eta_min = eta / 60
 
@@ -220,7 +247,17 @@ def main():
                 # Save checkpoint periodically
                 if steps % 250 == 0:
                     os.makedirs(f"models/{model_id}", exist_ok=True)
-                    model.save(f"models/{model_id}/model_latest.pth")
+                    
+                    torch.save({
+                        "epoch": epoch,
+                        "steps": steps,
+                        "model_state_dict": model.state_dict(),
+                        "optimizer_state_dict": optimizer.state_dict(),
+                        "hparams": Hparams.train_args
+                    }, checkpoint_lts_path)
+                    
+                    # model.save(f"models/{model_id}/model_latest.pth")
+                    
                     print(f"Checkpoint saved at step {steps}")
 
         # Log epoch-level losses
@@ -234,8 +271,20 @@ def main():
     # Save model after training
     print("Training complete!")
     os.makedirs(f"models/{model_id}", exist_ok=True)
-    model.save(f"models/{model_id}/model_final.pth")
-    print(f"Final model saved to models/{model_id}/model_final.pth")
+    
+    # Save final model
+    torch.save({
+        "epoch": epoch,
+        "steps": steps,
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+        "hparams": Hparams.train_args
+    }, checkpoint_final_path)
+
+    # model.save(f"models/{model_id}/model_final.pth")
+    
+    print(f"Final checkpoint saved to {checkpoint_final_path}")
+    # print(f"Final model saved to models/{model_id}/model_final.pth")
     writer.close()
     
 if __name__ == "__main__":
