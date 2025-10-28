@@ -95,7 +95,7 @@ def main():
         ).to(device)
         model.load_state_dict(checkpoint["model_state_dict"])
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-        optimizer.load_state_dict(checkpoint["optimizer_state"])
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         steps = checkpoint["steps"]
         start_epoch = checkpoint["epoch"] + 1
     else:

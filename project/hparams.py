@@ -30,7 +30,7 @@ class Hparams:
         'num_epochs': 1000,
         'starting_steps': 0,
         'num_examples': 100,
-        'model_id': 'test2',
+        'model_id': 'test3',
         'num_batch_repeats': 1
     }
     
