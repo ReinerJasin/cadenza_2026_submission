@@ -41,7 +41,7 @@ MODEL_NAME = "openai/whisper-small"  # or "openai/whisper-large-v2"
 LANGUAGE = "English"
 TASK = "transcribe"
 
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 NUM_EPOCHS = 3
 LEARNING_RATE = 1e-3
 TARGET_SR = 16000
@@ -202,7 +202,13 @@ training_args = Seq2SeqTrainingArguments(
     remove_unused_columns=False,
     label_names=["labels"],
     report_to="none",
+    per_device_eval_batch_size=1,
+    eval_accumulation_steps=1,
+    predict_with_generate=False
 )
+
+# model.gradient_checkpointing_enable()
+# torch.cuda.empty_cache()
 
 trainer = Seq2SeqTrainer(
     args=training_args,
