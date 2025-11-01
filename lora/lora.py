@@ -26,11 +26,12 @@ import evaluate
 # ============================================================
 # 1. Configuration
 # ============================================================
-# Repo root = parent of this file's directory (since lora.py lives in ./lora/)
+# Better for .py files
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Allow override via env var if you want
 DATA_ROOT = Path(os.getenv("DATA_ROOT", PROJECT_ROOT / "project" / "dataset" / "cadenza_data"))
+
+# Better for .ipynb files
+# DATA_ROOT = Path(r"\\wsl.localhost\Ubuntu\home\reiner\github\cadenza_2026_submission\project\dataset\cadenza_data")
 
 TRAIN_AUDIO_DIR = DATA_ROOT / "train" / "signals"
 VALID_AUDIO_DIR = DATA_ROOT / "valid" / "signals"
