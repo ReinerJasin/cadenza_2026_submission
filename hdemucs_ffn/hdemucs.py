@@ -24,6 +24,7 @@ def separate_vocals(audio_path: str, model_name: str = "htdemucs"):
         sr (int): Sampling rate
     """
     print(f"🎧 Using model: {model_name}")
+    print(f"Audio path: {audio_path}\n")
 
     # 1. Load pretrained model bag, then pick the first model
     bag = get_model(model_name)
@@ -58,11 +59,8 @@ def separate_vocals(audio_path: str, model_name: str = "htdemucs"):
     return vocals.cpu(), sr
 
 
-# --------------------------------------------------------
-# Optional standalone test
-# --------------------------------------------------------
 if __name__ == "__main__":
-    AUDIO_PATH = "/Users/reiner/Documents/GitHub/cadenza_2026_submission/project/dataset/cadenza_data/train/signals/a2bf283251ea0a8fffd405f3.flac"
+    AUDIO_PATH = "/Users/reiner/Documents/GitHub/cadenza_2026_submission/project/dataset/cadenza_data/train/unprocessed/a2bf283251ea0a8fffd405f3_unproc.flac"
     vocals, sr = separate_vocals(AUDIO_PATH, model_name="htdemucs")
     print(f"✅ Separated vocals shape: {vocals.shape}, sample rate: {sr}")
     torchaudio.save("vocals_output.wav", vocals, sr)  # vocals already [C, T]
