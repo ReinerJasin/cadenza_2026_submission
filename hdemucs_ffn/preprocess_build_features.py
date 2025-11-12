@@ -12,10 +12,10 @@ from transformers import WhisperProcessor, WhisperForConditionalGeneration
 
 # Paths
 DATA_ROOT = Path("/Users/reiner/Documents/GitHub/cadenza_2026_submission/project/dataset/cadenza_data")
-SIGNAL_DIR = DATA_ROOT / "valid" / "unprocessed"
+SIGNAL_DIR = DATA_ROOT / "valid" / "signals"
 VOCAL_CACHE = DATA_ROOT / "valid" / "vocals_cache"  # add this folder to cache separated vocals
 INPUT_JSON = DATA_ROOT / "metadata" / "valid_metadata.json"
-OUTPUT_JSON = DATA_ROOT / "metadata" / "valid_metadata_augmented.json"
+OUTPUT_JSON = DATA_ROOT / "metadata" / "valid_signals_metadata_augmented.json"
 
 START_IDX = 0
 END_IDX = 1000
@@ -57,7 +57,7 @@ def main():
     augmented = []
     for row in tqdm(meta, desc="Processing clips", unit="clip"):
         signal_id = row["signal"]
-        audio_path = SIGNAL_DIR / f"{signal_id}_unproc.flac"
+        audio_path = SIGNAL_DIR / f"{signal_id}.flac"
         vocal_path = VOCAL_CACHE / f"{signal_id}_vocals.wav"
 
         if not audio_path.exists():
@@ -65,37 +65,37 @@ def main():
             continue
 
         try:
-            # 1️⃣ Load audio
+            # Load audio
             audio, sr = torchaudio.load(str(audio_path))
             if audio.ndim > 1:
                 audio = torch.mean(audio, dim=0, keepdim=True)
 
-            # 2️⃣ Vocal separation (with caching)
+            # Vocal separation (with caching)
             if vocal_path.exists():
                 vocals, sr_v = torchaudio.load(vocal_path)
             else:
                 vocals, sr_v = separate_vocals(str(audio_path))
                 torchaudio.save(vocal_path, vocals, sr_v)
 
-            # 3️⃣ Transcribe vocals
+            # Transcribe vocals
             pred_text = transcribe_with_whisper(vocals, sr_v)
             ref_text = row.get("prompt", "")
             asr_correctness = compute_correctness(pred_text, ref_text)
 
-            # 4️⃣ BPM
+            # BPM
             bpm = float(compute_bpm(audio, sr))
             if bpm <= 0:
                 bpm = 1.0
             inv_bpm = 1.0 / bpm
 
-            # 5️⃣ STOI (truncate to 10 sec for speed)
+            # STOI (truncate to 10 sec for speed)
             max_len = min(audio.shape[1], sr * 10)
             stoi_score = float(compute_stoi(audio[:, :max_len], vocals[:, :max_len], sr))
 
-            # 6️⃣ Label
+            # Label
             label = float(row.get("fixed_correctness", row.get("correctness", 0.0)))
 
-            # 7️⃣ Append
+            # Append
             augmented.append(
                 {
                     "signal": signal_id,
