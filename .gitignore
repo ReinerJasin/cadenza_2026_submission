@@ -68,6 +68,9 @@ clarity/_version.py
 *~
 
 # Sound files
-*.wav
 /recipes/cad_icassp_2026/Reiner/dataset/cadenza_data
 /project/dataset/cadenza_data
+/models
+/runs
+/runs
+/runs
