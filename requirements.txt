@@ -1,3 +1,4 @@
+accelerate==1.11.0
 chardet==5.2.0
 demucs==4.0.1
 evaluate==0.4.6
@@ -5,10 +6,14 @@ ffmpeg-python==0.2.0
 jiwer==4.0.0
 librosa==0.11.0
 numpy==2.3.4
+openai-whisper==20250625
 pandas==2.3.3
+scikit-learn==1.7.2
+sentencepiece==0.2.1
 soundfile==0.13.1
 torch==2.8.0
 torchaudio==2.8.0
 torchcodec==0.8.0
+torchvision==0.23.0
 tqdm==4.67.1
 transformers==4.57.1
