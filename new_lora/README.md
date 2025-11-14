@@ -90,6 +90,8 @@ When we run the code, the final result will be the prediction of the whisper mod
     <source src="../project/dataset/cadenza_data/valid/signals/6fd06b828c785b77e19dfdcb.flac" type="audio/flac">
 </audio>
 
+[Listen to the audio](../project/dataset/cadenza_data/valid/signals/6fd06b828c785b77e19dfdcb.flac)
+
 * Audio name: 6fd06b828c785b77e19dfdcb
     * Noise level: No Loss
     * Inference Speed: 1.00 sec
@@ -102,6 +104,8 @@ When we run the code, the final result will be the prediction of the whisper mod
     <source src="../project/dataset/cadenza_data/valid/signals/5965000d1139d388ebcded80.flac" type="audio/flac">
 </audio>
 
+[Listen to the audio](../project/dataset/cadenza_data/valid/signals/5965000d1139d388ebcded80.flac)
+
 * Audio name: 5965000d1139d388ebcded80
     * Noise level: Mild
     * Inference Speed: 1.40 sec
@@ -112,6 +116,8 @@ When we run the code, the final result will be the prediction of the whisper mod
 <audio controls>
     <source src="../project/dataset/cadenza_data/valid/signals/795996ed006725199e5efc0b.flac" type="audio/flac">
 </audio>
+
+[Listen to the audio](../project/dataset/cadenza_data/valid/signals/795996ed006725199e5efc0b.flac)
 
 * Audio name: 795996ed006725199e5efc0b
     * Noise level: Moderate
