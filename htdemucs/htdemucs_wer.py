@@ -23,7 +23,7 @@ def normalize_text(text):
 CLEAN_FILE = "project/dataset/cadenza_data/metadata/valid_unproc_metadata_augmented.json"     # unprocessed (clean)
 NOISY_FILE = "project/dataset/cadenza_data/metadata/valid_signals_metadata_augmented.json"    # noisy version
 
-OUTPUT_FILE = "wer_result.csv"
+OUTPUT_FILE = "htdemucs/results/wer_result.csv"
 
 # -------------------------------
 # Load JSON files (no recoding)
@@ -70,7 +70,7 @@ for signal_id, ref_text in noisy_dict.items():
 # -------------------------------
 valid_wers = [x["wer"] for x in wer_results if x["wer"] is not None]
 avg_wer = sum(valid_wers) / len(valid_wers) if valid_wers else None
-print(f"📊 Average normalized WER (clean vs noisy): {avg_wer:.4f}")
+print(f"\n📊 Average normalized WER (clean vs noisy): {avg_wer:.4f}")
 
 # -------------------------------
 # Save to CSV (still standard UTF-8 output for compatibility)
@@ -83,7 +83,7 @@ with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
     writer.writeheader()
     writer.writerows(wer_results)
 
-print(f"💾 Results saved to {OUTPUT_FILE}")
+print(f"\n💾 Results saved to {OUTPUT_FILE}")
 print("✅ Done! (Original file encoding kept; all text lowercased & punctuation removed)")
 
 import chardet
@@ -105,4 +105,4 @@ print(df.columns)
 
 avg_wer = df["wer"].mean(skipna=True)
 
-print(f"📊 Average WER from wer_result.csv: {avg_wer:.4f} ({avg_wer*100:.2f}%)")
+print(f"\n📊 Average WER from wer_result.csv: {avg_wer:.4f} ({avg_wer*100:.2f}%)")
