@@ -46,8 +46,8 @@ python htdemucs/htdemucs_wer.py
 
 ## HTDemucs Inference Examples
 To give you a better understanding about how our pipeline performs. we provide the following inference examples, which includes:
-* Playable noisy vs HTDemucs separated vocals
-* Playable unprocessed vs HTDemucs separated vocals
+* Playable noisy vs HTDemucs separated vocals (Only on VS Code preview)
+* Playable unprocessed vs HTDemucs separated vocals (Only on VS Code preview)
 * Side-by-side waverform, spectrogram, and MFCC comparison
 * Whisper's transcription result
 * Correctness score
