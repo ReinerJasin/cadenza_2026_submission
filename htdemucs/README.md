@@ -1,7 +1,7 @@
 # HTDemucs Signal Isolation Pipeline
 
 ## Pipeline Diagram
-<img src="htdemucs.png" style="background-color:white;padding-top:5px">
+<img src="htdemucs_whitebg.png" style="background-color:white;padding-top:5px">
 
 ## Overview
 Our approach is inspired by the original Cadenza Challenge pipeline, where Hybrid Transformers Demucs (HTDemucs) was used to estimate the ground truth signals in the dataset. This technique then converts the method from an intrusive approach where we can do direct comparison between the processed signals and unprocessed signals, into a non-intrusive approach, by only passing the vocal estimated feature which technically mask the ground truth.
@@ -30,14 +30,19 @@ Our HTDemucs Signal Isolation pipeline follow these key steps:
 ## Running the HTDemucs Vocal Isolation
 **(Optional)** If you want to create your own transcription result in the metadata folder by running the following script in the terminal. Make sure that you activate the correct virtual environment.
 
-```python htdemucs/preprocess_build_features.py```
+```
+python htdemucs/preprocess_build_features.py
+```
+---
 
 You can run the HTDemucs inference script to compute corrrectness based on our previous result or your custom transcription, just make sure that these files exist in your project:
 * `project/dataset/cadenza_data/metadata/valid_signals_metadata_augmented.json`
 * `project/dataset/cadenza_data/metadata/valid_unproc_metadata_augmented.json`
 
 Then you can run this command in the terminal:
-```python htdemucs/htdemucs_wer.py```
+```
+python htdemucs/htdemucs_wer.py
+```
 
 ## HTDemucs Inference Examples
 To give you a better understanding about how our pipeline performs. we provide the following inference examples, which includes:
@@ -48,76 +53,196 @@ To give you a better understanding about how our pipeline performs. we provide t
 * Correctness score
 
 ### 🟩 Noise Level: No Loss
-Noisy Signals — Before & After HTDemucs
 
-Audio Name: 1d887341bdf775c49d8a0c30
+#### Noisy Signals — Before & After HTDemucs
 
-Unprocessed Signals — Before & After HTDemucs
+* Audio Name: `1d887341bdf775c49d8a0c30` <br/>
 
-Audio Name: 1d887341bdf775c49d8a0c30_unproc
+<table>
+    <tr>
+        <td align="center">
+            <b>Original Noisy Audio</b><br/>
+            <audio controls>
+                <source src="../project/dataset/cadenza_data/valid/signals/1d887341bdf775c49d8a0c30.flac" type="audio/flac">
+            </audio>
+        </td>
+        <td align="center">
+            <b>HTDemucs Vocal Output</b><br/>
+            <audio controls>
+                <source src="results/htdemucs_1d887341bdf775c49d8a0c30.flac.wav" type="audio/wav">
+            </audio>
+        </td>
+    </tr>
+</table>
 
-Ground Truth
+#### Visual Comparison (Signal)
 
-Lyrics: “you can hold my hand”
+<img src="results/htdemucs_1d887341bdf775c49d8a0c30_comparison.png" style="background-color:white;padding-top:5px">
 
-HT Demucs result (noisy audio)
+**Unprocessed Signals — Before & After HTDemucs**
 
-Whisper Prediction: “You can know my hand.”
+* Audio Name: `1d887341bdf775c49d8a0c30_unproc` <br/>
 
-Correctness: 0.8
+<table>
+    <tr>
+        <td align="center">
+            <b>Original Unprocessed Audio</b><br/>
+            <audio controls>
+                <source src="../project/dataset/cadenza_data/valid/unprocessed/1d887341bdf775c49d8a0c30_unproc.flac" type="audio/flac">
+            </audio>
+        </td>
+        <td align="center">
+            <b>HTDemucs Vocal Output</b><br/>
+            <audio controls>
+                <source src="results/htdemucs_1d887341bdf775c49d8a0c30_unproc.flac.wav" type="audio/wav">
+            </audio>
+        </td>
+    </tr>
+</table>
 
-HT Demucs result (unprocessed audio)
+#### Visual Comparison (Unprocessed)
 
-Whisper Prediction: “You can know my hand”
+<img src="results/htdemucs_1d887341bdf775c49d8a0c30_comparison.png" style="background-color:white;padding-top:5px">
 
-Correctness: 0.8
+#### Inference Result
+* **Ground Truth**
+    * Lyrics: “you can hold my hand”
+
+* **HTDemucs result (noisy audio)**
+    * Whisper Prediction: “ You can know my hand.”
+    * Correctness: 0.8
+
+* **HTDemucs result (unprocessed audio)**
+    * Whisper Prediction: “ You can know my hand.”
+    * Correctness: 0.8
+
 
 ### 🟨 Noise Level: Mild
-Noisy Signals — Before & After HTDemucs
 
-Audio Name: 1d887341bdf775c49d8a0c30
+#### Noisy Signals — Before & After HTDemucs
 
-Unprocessed Signals — Before & After HTDemucs
+* Audio Name: `77dda6054a517033716f00ff` <br/>
 
-Audio Name: 1d887341bdf775c49d8a0c30_unproc
+<table>
+    <tr>
+        <td align="center">
+            <b>Original Noisy Audio</b><br/>
+            <audio controls>
+                <source src="../project/dataset/cadenza_data/valid/signals/77dda6054a517033716f00ff.flac" type="audio/flac">
+            </audio>
+        </td>
+        <td align="center">
+            <b>HTDemucs Vocal Output</b><br/>
+            <audio controls>
+                <source src="results/htdemucs_77dda6054a517033716f00ff.flac.wav" type="audio/wav">
+            </audio>
+        </td>
+    </tr>
+</table>
 
-Ground Truth
+#### Visual Comparison (Signal)
 
-Lyrics: “you can hold my hand”
+<img src="results/htdemucs_77dda6054a517033716f00ff_comparison.png" style="background-color:white;padding-top:5px">
 
-HT Demucs result (noisy audio)
+**Unprocessed Signals — Before & After HTDemucs**
 
-Whisper Prediction: “You can know my hand.”
+* Audio Name: `77dda6054a517033716f00ff_unproc` <br/>
 
-Correctness: 0.8
+<table>
+    <tr>
+        <td align="center">
+            <b>Original Unprocessed Audio</b><br/>
+            <audio controls>
+                <source src="../project/dataset/cadenza_data/valid/unprocessed/77dda6054a517033716f00ff_unproc.flac" type="audio/flac">
+            </audio>
+        </td>
+        <td align="center">
+            <b>HTDemucs Vocal Output</b><br/>
+            <audio controls>
+                <source src="results/htdemucs_77dda6054a517033716f00ff_unproc.flac.wav" type="audio/wav">
+            </audio>
+        </td>
+    </tr>
+</table>
 
-HT Demucs result (unprocessed audio)
+#### Visual Comparison (Unprocessed)
 
-Whisper Prediction: “You can know my hand”
+<img src="results/htdemucs_77dda6054a517033716f00ff_comparison.png" style="background-color:white;padding-top:5px">
 
-Correctness: 0.8
+#### Inference Result
+* **Ground Truth**
+    * Lyrics: “looking back at me it could be seven”
+
+* **HTDemucs result (noisy audio)**
+    * Whisper Prediction: “ Looking back at me, it could be seven.”
+    * Correctness: 1.0
+
+* **HTDemucs result (unprocessed audio)**
+    * Whisper Prediction: “ Looking back at me, it could be seven.”
+    * Correctness: 1.0
+
 
 ### 🟧 Noise Level: Moderate
-Noisy Signals — Before & After HTDemucs
 
-Audio Name: 1d887341bdf775c49d8a0c30
+#### Noisy Signals — Before & After HTDemucs
 
-Unprocessed Signals — Before & After HTDemucs
+* Audio Name: `8e4cfa2df03c1076ff189821` <br/>
 
-Audio Name: 1d887341bdf775c49d8a0c30_unproc
+<table>
+    <tr>
+        <td align="center">
+            <b>Original Noisy Audio</b><br/>
+            <audio controls>
+                <source src="../project/dataset/cadenza_data/valid/signals/8e4cfa2df03c1076ff189821.flac" type="audio/flac">
+            </audio>
+        </td>
+        <td align="center">
+            <b>HTDemucs Vocal Output</b><br/>
+            <audio controls>
+                <source src="results/htdemucs_8e4cfa2df03c1076ff189821.flac.wav" type="audio/wav">
+            </audio>
+        </td>
+    </tr>
+</table>
 
-Ground Truth
+#### Visual Comparison (Signal)
 
-Lyrics: “you can hold my hand”
+<img src="results/htdemucs_8e4cfa2df03c1076ff189821_comparison.png" style="background-color:white;padding-top:5px">
 
-HT Demucs result (noisy audio)
+**Unprocessed Signals — Before & After HTDemucs**
 
-Whisper Prediction: “You can know my hand.”
+* Audio Name: `8e4cfa2df03c1076ff189821_unproc` <br/>
 
-Correctness: 0.8
+<table>
+    <tr>
+        <td align="center">
+            <b>Original Unprocessed Audio</b><br/>
+            <audio controls>
+                <source src="../project/dataset/cadenza_data/valid/unprocessed/8e4cfa2df03c1076ff189821_unproc.flac" type="audio/flac">
+            </audio>
+        </td>
+        <td align="center">
+            <b>HTDemucs Vocal Output</b><br/>
+            <audio controls>
+                <source src="results/htdemucs_8e4cfa2df03c1076ff189821_unproc.flac.wav" type="audio/wav">
+            </audio>
+        </td>
+    </tr>
+</table>
 
-HT Demucs result (unprocessed audio)
+#### Visual Comparison (Unprocessed)
 
-Whisper Prediction: “You can know my hand”
+<img src="results/htdemucs_8e4cfa2df03c1076ff189821_comparison.png" style="background-color:white;padding-top:5px">
 
-Correctness: 0.8
+#### Inference Result
+* **Ground Truth**
+    * Lyrics: “i had to cry on someone else”
+
+* **HTDemucs result (noisy audio)**
+    * Whisper Prediction: “ I have to cry on someone else.”
+    * Correctness: 0.8571428571428572
+
+* **HTDemucs result (unprocessed audio)**
+    * Whisper Prediction: “ I have to cry on someone else.”
+    * Correctness: 0.8571428571428572
+

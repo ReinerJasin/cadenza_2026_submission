@@ -54,7 +54,7 @@ Click any folder below to open it and view its own README:
 
 * [data_analysis_and_sastoi](data_analysis_and_sastoi/) : Exploratory data analysis of the data set.
 * [LoRA (new)](new_lora/) : Most updated implementation of the LoRA fine tuning method.
-* [HT Demucs](htdemucs/) : Implementation of Vocal Signal Isolation technique.
+* [HTDemucs](htdemucs/) : Implementation of Vocal Signal Isolation technique.
 * [Smart Model Picker](Whisper_M4T_Smart_Picker/) : Implementation of Smart Whisper/M4T model picker.
 
 Previous implementation:
