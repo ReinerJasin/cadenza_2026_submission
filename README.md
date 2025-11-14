@@ -11,7 +11,7 @@ For more details about the challenge, please visit [cadenza challenge 2026 websi
 
 2. Ram Gopalakrishnan
     * Student ID: A0314499R
-    * Contact: -
+    * Contact: - E1503341@u.nus.edu
 
 3. Qiao Jiayi
     * Student ID: A0332228L
