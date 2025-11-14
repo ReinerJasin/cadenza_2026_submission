@@ -19,7 +19,7 @@ For more details about the challenge, please visit [cadenza challenge 2026 websi
 
 4. Ye Guoquan
     * Student ID: A0188947A
-    * Contact: -
+    * Contact: E0324531@u.nus.edu
 
 ## Environment Setup Step
 
