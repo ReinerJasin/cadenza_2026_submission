@@ -86,24 +86,40 @@ By this calculation, **we only need to update the weights of 1,769,472 trainable
 ## Inference Result Example
 When we run the code, the final result will be the prediction of the whisper model.
 
+<audio controls>
+    <source src="../project/dataset/cadenza_data/valid/signals/6fd06b828c785b77e19dfdcb.flac" type="audio/flac">
+</audio>
+
 * Audio name: 6fd06b828c785b77e19dfdcb
     * Noise level: No Loss
     * Inference Speed: 1.00 sec
     * Ground truth: head down all shivering as if to yell
     * Prediction: hate it as shiver and six t...
+    * WER: 1.000
+
+
+<audio controls>
+    <source src="../project/dataset/cadenza_data/valid/signals/5965000d1139d388ebcded80.flac" type="audio/flac">
+</audio>
 
 * Audio name: 5965000d1139d388ebcded80
     * Noise level: Mild
     * Inference Speed: 1.40 sec
     * Ground truth: we had time to spend together
-    * Prediction: we are had time to spend together...
+    * Prediction: we are had time to spend together
+    * WER: 0.167
+
+<audio controls>
+    <source src="../project/dataset/cadenza_data/valid/signals/795996ed006725199e5efc0b.flac" type="audio/flac">
+</audio>
 
 * Audio name: 795996ed006725199e5efc0b
     * Noise level: Moderate
     * Inference Speed: 0.45 sec
     * Ground truth: I had to walk before I made
-    * Prediction: i have to go be on me for all may...
+    * Prediction: i have to go be on me for all may
+    * WER: 
 
 ## Performance Metrics
-Our LoRA implementation able to reach WER on the valid set at **67.93%**
+Our LoRA implementation able to reach WER on the valid set at **69.00%**
 
